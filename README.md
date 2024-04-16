@@ -31,10 +31,8 @@ From within this directory in terminal, run `cd deploy` to access the deployment
 command can be viewed in its [README](deploy/README.md).)
 
 The policies are applied to all managed clusters that are available, and have the `environment` set
-to `dev`. Specifically, an available managed cluster has the `status` parameter set to `true` by the
-system, for the `ManagedClusterConditionAvailable` condition. If policies need to be applied to
-another set of clusters, update the `PlacementRule.spec.clusterSelector.matchExpressions` section in
-the policies.
+to `dev`. If policies need to be applied to another set of clusters, update the 
+`PlacementRule.spec.clusterSelector.matchExpressions` section in the policies.
 
 **Note**: As new clusters are added that fit the criteria previously mentioned, the policies are
 applied automatically.
