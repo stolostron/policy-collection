@@ -1,0 +1,30 @@
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: openshift-virtualization
+  namespace: default
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: "acm/cnv-operator-install"
+        operator: In
+        values:
+          - "true"
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: openshift-virtualization
+  namespace: default
+placementRef:
+  name: openshift-virtualization
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: openshift-virtualization
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
