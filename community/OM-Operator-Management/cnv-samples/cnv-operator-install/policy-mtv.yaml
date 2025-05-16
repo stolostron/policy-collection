@@ -1,0 +1,164 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: openshift-virtualization-mtv
+  namespace: default
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: mtv-namespace
+        spec:
+          remediationAction: enforce
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: "v1"
+                kind: "Namespace"
+                metadata:
+                  name: "openshift-mtv"
+            
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1beta1
+        kind: OperatorPolicy
+        metadata:
+          name: mtv-forklift-operator
+        spec:
+          remediationAction: enforce
+          complianceType: musthave
+          operatorGroup: # optional
+            name: openshift-mtv
+            namespace: openshift-mtv
+            targetNamespaces:
+                - openshift-mtv
+          subscription:
+            channel: release-v2.8
+            name: mtv-operator
+            namespace: openshift-mtv
+          upgradeApproval: Automatic
+# Create the hyperconverged Custom Resource below
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: mtv-forklift-deployment
+        spec:
+          remediationAction: enforce
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: forklift.konveyor.io/v1beta1
+                kind: ForkliftController
+                metadata:
+                  name: forklift-controller
+                  namespace: openshift-mtv
+                spec:
+                  feature_ui_plugin: 'true'
+                  feature_validation: 'true'
+                  feature_volume_populator: 'true'
+
+#Validate that things are installed
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: mtv-forklift-available
+        spec:
+          remediationAction: inform
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: forklift.konveyor.io/v1beta1
+                kind: ForkliftController
+                metadata:
+                  name: forklift-controller
+                  namespace: openshift-mtv
+                status:
+                  conditions:
+                    - message: Last reconciliation succeeded
+                      reason: Successful
+                      status: 'True'
+                      type: Successful
+                    - message: ''
+                      reason: ''
+                      status: 'False'
+                      type: Failure
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: forklift-api
+                  namespace: openshift-mtv
+                status:
+                  readyReplicas: 1
+                  availableReplicas: 1
+                  conditions:
+                    - type: Available
+                      status: 'True'
+                      reason: MinimumReplicasAvailable
+                      message: Deployment has minimum availability.
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: forklift-controller
+                  namespace: openshift-mtv
+                status:
+                  readyReplicas: 1
+                  availableReplicas: 1
+                  conditions:
+                    - type: Available
+                      status: 'True'
+                      reason: MinimumReplicasAvailable
+                      message: Deployment has minimum availability.
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: forklift-validation
+                  namespace: openshift-mtv
+                status:
+                  readyReplicas: 1
+                  availableReplicas: 1
+                  conditions:
+                    - type: Available
+                      status: 'True'
+                      reason: MinimumReplicasAvailable
+                      message: Deployment has minimum availability.
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: forklift-volume-populator-controller
+                  namespace: openshift-mtv
+                status:
+                  readyReplicas: 1
+                  availableReplicas: 1
+                  conditions:
+                    - type: Available
+                      status: 'True'
+                      reason: MinimumReplicasAvailable
+                      message: Deployment has minimum availability.
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: forklift-operator
+                  namespace: openshift-mtv
+                status:
+                  readyReplicas: 1
+                  availableReplicas: 1
+                  conditions:
+                    - type: Available
+                      status: 'True'
+                      reason: MinimumReplicasAvailable
+                      message: Deployment has minimum availability.
