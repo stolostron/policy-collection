@@ -28,3 +28,34 @@ subjects:
   - name: openshift-virtualization
     kind: Policy
     apiGroup: policy.open-cluster-management.io
+
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: openshift-virtualization-mtv
+  namespace: default
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: "local-cluster"
+        operator: In
+        values:
+          - "true"
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: openshift-virtualization-mtv
+  namespace: default
+placementRef:
+  name: openshift-virtualization-mtv
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: openshift-virtualization-mtv
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
