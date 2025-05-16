@@ -1,11 +1,16 @@
 # Install OpenShift Virtualization operator in the Fleet
 
-This Policy for Red Hat Advanced Cluster Management for Kubernetes(ACM) includes an Operator policy. This policy deploys Red Hat operators on the clusters managed by ACM (ManagedClusters). The included placement uses labels to determine which ManagedCluster to apply the Operator policy to. The Operator Policy deploys the OpenShift Virtualization operator and include a Configuration Policy to validate core controllers are online.
+This Policy for Red Hat Advanced Cluster Management for Kubernetes(ACM) includes an Operator policy. This policy deploys Red Hat operators on the clusters managed by ACM (ManagedClusters). The included placement uses labels to determine which ManagedCluster to apply the Operator policy to. The Operator Policy deploys the OpenShift Virtualization operator & the Migration Toolkit for Virtualization operator and include a Configuration Policy to validate core controllers are online.
 
-* To choose a ManagedCluster as a target for this Container Native Virtualization Operator Policy by applying the label `acm/cnv-operator-install: "true"` to a ManagedCluster in ACM.
+Two policies will appear in Advanced Cluster Managements **Governance** console (Polcies):
+* openshift-virtualization `policy-cnv.yaml`
+* openshift-virtualization-mtv  `policy-mtv.yaml`
+
+* To choose a ManagedCluster as a target for this Container Native Virtualization Operator Policy by applying the label `acm/cnv-operator-install: "true"` to a ManagedCluster in ACM
+* The openshift-virtualization-mtv policy just targets the Advanced Cluster Management's hub cluster, via the `local-cluster: true` label
 
 ### Deploy the Policy
-Apply the policy to the ACM Hub, then add the label `acm/cnv-operator-install: "true"` to the ManagedClusters where you want to deploy Container Native Virtualization operator.
+Apply the policies to the ACM Hub, then add the label `acm/cnv-operator-install=true` to the ManagedClusters where you want to deploy Container Native Virtualization operator (use the console/api/oc-cli)
 ```
 oc apply -f ./
 ```
@@ -20,4 +25,4 @@ You may customize the hyperconverged settings in the `policy-cnv.yaml` file. Whe
 
 To customize any of these resources in the policy, refer to the [OpenShift Virtualization documentation](https://docs.openshift.com/container-platform/4.17/virt/install/installing-virt.html#virt-subscribing-cli_installing-virt).
 
-Note: The policy is keyed to OCP `v4.18.9` and OpenShift Virtualization `v4.18.2`
+Note: The policy is keyed to OCP `v4.18.9`, OpenShift Virtualization `v4.17.3` and Migration Toolkit for Virtualization `v2.8.3`
