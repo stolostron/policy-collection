@@ -35,6 +35,7 @@ Policies in this folder are organized by [NIST Special Publication 800-53](https
     - [Custom policy controllers](#custom-policy-controllers)
     - [Policy consumers on operator hub](#policy-consumers-on-operator-hub)
     - [Other custom policy consumers](#other-custom-policy-consumers)
+    - [Operator Management](#operator-management)
 
 ### Access Control
 
@@ -287,3 +288,7 @@ Some policy consumers are packaged as [operators](https://coreos.com/operators/)
 
 ### Other custom policy consumers
 Occasionally, policies in this folder might be consumed by controllers that do not fall into either of the two categories previously mentioned. To get the most out of these policies, see the [Security control catalog](#security-control-catalog)
+
+### Operator Management
+Policies for managing operators with the policy `OperatorConfig` kind.
+- [Operator-Management](./Operator-Management/README.md)

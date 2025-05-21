@@ -6,22 +6,7 @@ metadata:
 spec:
   remediationAction: enforce
   disabled: false
-  policy-templates:
-    - objectDefinition:
-        apiVersion: policy.open-cluster-management.io/v1
-        kind: ConfigurationPolicy
-        metadata:
-          name: mtv-namespace
-        spec:
-          remediationAction: enforce
-          object-templates:
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: "v1"
-                kind: "Namespace"
-                metadata:
-                  name: "openshift-mtv"
-            
+  policy-templates:            
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1beta1
         kind: OperatorPolicy

@@ -15,6 +15,8 @@ Apply the policies to the ACM Hub, then add the label `acm/cnv-operator-install=
 oc apply -f ./
 ```
 
+Then bind the `default` **ManagedClusterSet** to the `default` namespace, so that placement can resolve your clusters
+
 You may customize the hyperconverged settings in the `policy-cnv.yaml` file. Where you will find:
   1. Subscription resource details
   2. ClusterServiceVersion resource details
