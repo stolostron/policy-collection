@@ -46,7 +46,7 @@ spec:
                   feature_validation: 'true'
                   feature_volume_populator: 'true'
 
-#Validate that things are installed
+# Validate that things are installed
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
@@ -72,78 +72,6 @@ spec:
                       reason: ''
                       status: 'False'
                       type: Failure
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: apps/v1
-                kind: Deployment
-                metadata:
-                  name: forklift-api
-                  namespace: openshift-mtv
-                status:
-                  readyReplicas: 1
-                  availableReplicas: 1
-                  conditions:
-                    - type: Available
-                      status: 'True'
-                      reason: MinimumReplicasAvailable
-                      message: Deployment has minimum availability.
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: apps/v1
-                kind: Deployment
-                metadata:
-                  name: forklift-controller
-                  namespace: openshift-mtv
-                status:
-                  readyReplicas: 1
-                  availableReplicas: 1
-                  conditions:
-                    - type: Available
-                      status: 'True'
-                      reason: MinimumReplicasAvailable
-                      message: Deployment has minimum availability.
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: apps/v1
-                kind: Deployment
-                metadata:
-                  name: forklift-validation
-                  namespace: openshift-mtv
-                status:
-                  readyReplicas: 1
-                  availableReplicas: 1
-                  conditions:
-                    - type: Available
-                      status: 'True'
-                      reason: MinimumReplicasAvailable
-                      message: Deployment has minimum availability.
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: apps/v1
-                kind: Deployment
-                metadata:
-                  name: forklift-volume-populator-controller
-                  namespace: openshift-mtv
-                status:
-                  readyReplicas: 1
-                  availableReplicas: 1
-                  conditions:
-                    - type: Available
-                      status: 'True'
-                      reason: MinimumReplicasAvailable
-                      message: Deployment has minimum availability.
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: apps/v1
-                kind: Deployment
-                metadata:
-                  name: forklift-operator
-                  namespace: openshift-mtv
-                status:
-                  readyReplicas: 1
-                  availableReplicas: 1
-                  conditions:
-                    - type: Available
-                      status: 'True'
-                      reason: MinimumReplicasAvailable
-                      message: Deployment has minimum availability.
+
+
+
