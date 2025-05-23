@@ -27,4 +27,3 @@ You may customize the hyperconverged settings in the `policy-cnv.yaml` file. Whe
 
 To customize any of these resources in the policy, refer to the [OpenShift Virtualization documentation](https://docs.openshift.com/container-platform/4.17/virt/install/installing-virt.html#virt-subscribing-cli_installing-virt).
 
-Note: The policy is keyed to OCP `v4.18.9`, OpenShift Virtualization `v4.17.3` and Migration Toolkit for Virtualization `v2.8.3`

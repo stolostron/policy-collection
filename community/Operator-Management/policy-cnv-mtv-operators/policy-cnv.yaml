@@ -113,7 +113,7 @@ spec:
                     nodeSelector:
                       kubernetes.io/os: linux
 
-#Validate that things are installed
+# Validate that things are installed
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
@@ -135,3 +135,4 @@ spec:
                       reason: ReconcileCompleted
                       status: 'True'
                     - type: Available
+
