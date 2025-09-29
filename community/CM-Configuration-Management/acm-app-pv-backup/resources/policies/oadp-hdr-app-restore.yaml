@@ -1,5 +1,5 @@
 #
-# This policy creates a velero restore resource to all managed clusters 
+# This policy creates a velero restore resource to all managed clusters
 # with a label "acm-app-restore=<backup-name>". The restore resource is used to restore applications resources and PVs
 # from the <backup-name> specified with this label.
 #
@@ -63,7 +63,7 @@ spec:
                   namespace: '{{hub $configMap.data.backupNS hub}}'
                   labels:
                     cluster-id: '{{ fromClusterClaim "id.openshift.io" }}'
-                    cluster-name: '{{ fromClusterClaim "name" }}'
+                    cluster-name: '{{hub .ManagedClusterName hub}}'
                 spec:
                   existingResourcePolicy: update
                   backupName: '{{ fromClusterClaim "acm-app-restore" }}'
