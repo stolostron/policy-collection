@@ -1,9 +1,9 @@
 #
 # This policy creates a velero schedule to all managed clusters with a label "acm-pv-dr=backup".
 # The schedule is used to backup applications resources and PVs.
-# The schedule uses the `backupNSToBackup` hdr-app-configmap property to specify the namespaces for the applications to backup. 
-# 
-# Create this policy on the hub managing clusters where you want to create stateful applications backups. 
+# The schedule uses the `backupNSToBackup` hdr-app-configmap property to specify the namespaces for the applications to backup.
+#
+# Create this policy on the hub managing clusters where you want to create stateful applications backups.
 # This policy depends on the oadp-hdr-app-install policy so the install policy must be successfully placed before the backup policy executes.
 #
 # Note that it is set to enforce by default.
@@ -37,11 +37,11 @@ spec:
                 apiVersion: velero.io/v1
                 kind: Schedule
                 metadata:
-                  name: '{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}-{{ fromClusterClaim "name" }}'
+                  name: '{{hub printf "%s-%s-%s" $configMap.data.backupPrefix $configMap.data.backupVolumeSnapshotLocation .ManagedClusterName hub}}'
                   namespace: '{{hub $configMap.data.backupNS hub}}'
                   labels:
                     cluster-id: '{{ fromClusterClaim "id.openshift.io" }}'
-                    cluster-name: '{{ fromClusterClaim "name" }}'
+                    cluster-name: '{{hub .ManagedClusterName hub}}'
                 spec:
                   schedule: '{{hub $configMap.data.backupSchedule hub}}'
                   template:
@@ -72,7 +72,7 @@ spec:
                   namespace: '{{hub $configMap.data.backupNS hub}}'
                   labels:
                     cluster-id: '{{ fromClusterClaim "id.openshift.io" }}'
-                    cluster-name: '{{ fromClusterClaim "name" }}'
+                    cluster-name: '{{hub .ManagedClusterName hub}}'
                 status:
                   phase: FailedValidation
             {{hub end hub}}
@@ -94,9 +94,9 @@ spec:
                 metadata:
                   namespace: '{{hub $configMap.data.backupNS hub}}'
                   labels:
-                    velero.io/schedule-name: '{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}-{{ fromClusterClaim "name" }}'
+                    velero.io/schedule-name: '{{hub printf "%s-%s-%s" $configMap.data.backupPrefix $configMap.data.backupVolumeSnapshotLocation .ManagedClusterName hub}}'
                     cluster-id: '{{ fromClusterClaim "id.openshift.io" }}'
-                    cluster-name: '{{ fromClusterClaim "name" }}'
+                    cluster-name: '{{hub .ManagedClusterName hub}}'
                 status:
                   phase: Error
                   startTimestamp: '{{ (lookup "velero.io/v1" "Schedule" "{{hub $configMap.data.backupNS hub}}" "{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}{{hub end hub}}-{{hub (printf "%s" .ManagedClusterName) hub}}").status.lastBackup }}'
@@ -118,9 +118,9 @@ spec:
                 metadata:
                   namespace: '{{hub $configMap.data.backupNS hub}}'
                   labels:
-                    velero.io/schedule-name: '{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}-{{ fromClusterClaim "name" }}'
+                    velero.io/schedule-name: '{{hub printf "%s-%s-%s" $configMap.data.backupPrefix $configMap.data.backupVolumeSnapshotLocation .ManagedClusterName hub}}'
                     cluster-id: '{{ fromClusterClaim "id.openshift.io" }}'
-                    cluster-name: '{{ fromClusterClaim "name" }}'
+                    cluster-name: '{{hub .ManagedClusterName hub}}'
                 status:
                   phase: FailedValidation
                   startTimestamp: '{{ (lookup "velero.io/v1" "Schedule" "{{hub $configMap.data.backupNS hub}}" "{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}{{hub end hub}}-{{hub (printf "%s" .ManagedClusterName) hub}}").status.lastBackup }}'
@@ -142,9 +142,9 @@ spec:
                 metadata:
                   namespace: '{{hub $configMap.data.backupNS hub}}'
                   labels:
-                    velero.io/schedule-name: '{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}-{{ fromClusterClaim "name" }}'
+                    velero.io/schedule-name: '{{hub printf "%s-%s-%s" $configMap.data.backupPrefix $configMap.data.backupVolumeSnapshotLocation .ManagedClusterName hub}}'
                     cluster-id: '{{ fromClusterClaim "id.openshift.io" }}'
-                    cluster-name: '{{ fromClusterClaim "name" }}'
+                    cluster-name: '{{hub .ManagedClusterName hub}}'
                 status:
                   phase: PartiallyFailed
                   startTimestamp: '{{ (lookup "velero.io/v1" "Schedule" "{{hub $configMap.data.backupNS hub}}" "{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}{{hub end hub}}-{{hub (printf "%s" .ManagedClusterName) hub}}").status.lastBackup }}'
@@ -166,9 +166,9 @@ spec:
                 metadata:
                   namespace: '{{hub $configMap.data.backupNS hub}}'
                   labels:
-                    velero.io/schedule-name: '{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}-{{ fromClusterClaim "name" }}'
+                    velero.io/schedule-name: '{{hub printf "%s-%s-%s" $configMap.data.backupPrefix $configMap.data.backupVolumeSnapshotLocation .ManagedClusterName hub}}'
                     cluster-id: '{{ fromClusterClaim "id.openshift.io" }}'
-                    cluster-name: '{{ fromClusterClaim "name" }}'
+                    cluster-name: '{{hub .ManagedClusterName hub}}'
                 status:
                   phase: ''
                   startTimestamp: '{{ (lookup "velero.io/v1" "Schedule" "{{hub $configMap.data.backupNS hub}}" "{{hub $configMap.data.backupPrefix hub}}-{{hub $configMap.data.backupVolumeSnapshotLocation hub}}{{hub end hub}}-{{hub (printf "%s" .ManagedClusterName) hub}}").status.lastBackup }}'
@@ -182,7 +182,7 @@ spec:
           name: check-backup-completed
         spec:
           object-templates-raw: |
-           {{hub $clusterName := (printf "%s" .ManagedClusterName) hub}}
+           {{hub $clusterName := .ManagedClusterName hub}}
            {{hub $configMap := (lookup "v1" "ConfigMap" "" "hdr-app-configmap") hub}}
            {{hub $backupNS := $configMap.data.backupNS hub}}
            {{hub $backupPrefix := $configMap.data.backupPrefix hub}}
