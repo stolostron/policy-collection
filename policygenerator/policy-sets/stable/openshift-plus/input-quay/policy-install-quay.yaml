@@ -101,3 +101,24 @@ spec:
       managed: true
     - managed: true
       kind: tls
+    - kind: horizontalpodautoscaler
+      managed: false
+    - kind: quay
+      managed: true
+      overrides:
+        replicas: null
+    - kind: clair
+      managed: true
+      overrides:
+        replicas: null
+        resources:
+          requests:
+            memory: 8Gi
+            cpu: "4"
+          limits:
+            memory: 16Gi
+            cpu: "8"
+    - kind: mirror
+      managed: true
+      overrides:
+        replicas: null
