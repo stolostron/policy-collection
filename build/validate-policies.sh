@@ -34,8 +34,9 @@ fi
 set -euo pipefail # exit on errors and unset vars, and stop on the first error in a "pipeline"
 
 # Install kubeconform
-echo "Installing kubeconform"
+echo "::group::Installing kubeconform"
 go install github.com/yannh/kubeconform/cmd/kubeconform@${KC_VERSION}
+echo "::endgroup::"
 
 # Get the CRDs needed for policy validation
 if [ ! -d schemas ]; then
@@ -67,17 +68,19 @@ validatePolicies community
 # Switching to check generator projects now
 
 # Install kustomize
-echo "Installing kustomize"
+echo "::group::Installing kustomize"
 GO111MODULE=on go install sigs.k8s.io/kustomize/kustomize/v5@${KUSTOMIZE_VERSION}
+echo "::endgroup::"
 
 # Install the Policy Generator kustomize plugin
 export KUSTOMIZE_PLUGIN_HOME=${GOBIN}
-echo "Downloading the generator"
-git clone --depth=1 https://github.com/${GITHUB_REPOSITORY_OWNER}/policy-generator-plugin ${GOBIN}/policy-generator-plugin
-( cd ${GOBIN}/policy-generator-plugin; make build-binary )
-chmod a+x ${GOBIN}/policy-generator-plugin/PolicyGenerator
-mkdir -p ${KUSTOMIZE_PLUGIN_HOME}/${GENERATOR_PATH}
-mv ${GOBIN}/policy-generator-plugin/PolicyGenerator ${KUSTOMIZE_PLUGIN_HOME}/${GENERATOR_PATH}/PolicyGenerator
+echo "::group::Downloading the generator"
+git clone --depth=1 "https://github.com/${GITHUB_REPOSITORY_OWNER}/policy-generator-plugin" "${GOBIN}/policy-generator-plugin"
+( cd "${GOBIN}/policy-generator-plugin"; make build-binary )
+chmod a+x "${GOBIN}/policy-generator-plugin/PolicyGenerator"
+mkdir -p "${KUSTOMIZE_PLUGIN_HOME}/${GENERATOR_PATH}"
+mv "${GOBIN}/policy-generator-plugin/PolicyGenerator" "${KUSTOMIZE_PLUGIN_HOME}/${GENERATOR_PATH}/PolicyGenerator"
+echo "::endgroup::"
 
 # Validate the generator projects
 
