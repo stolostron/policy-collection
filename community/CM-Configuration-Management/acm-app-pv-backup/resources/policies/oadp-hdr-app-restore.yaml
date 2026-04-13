@@ -18,10 +18,10 @@ metadata:
     policy.open-cluster-management.io/standards: NIST-CSF
 spec:
   dependencies:
-  - apiVersion: policy.open-cluster-management.io/v1
-    compliance: Compliant
-    kind: Policy
-    name: oadp-hdr-app-install
+    - apiVersion: policy.open-cluster-management.io/v1
+      compliance: Compliant
+      kind: Policy
+      name: oadp-hdr-app-install
   disabled: false
   policy-templates:
     - objectDefinition:
