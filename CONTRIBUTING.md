@@ -115,3 +115,26 @@ Create a pull request that can be reviewed by the product team. See the followin
 ## Issue and pull request management
 
 Anyone can comment on issues and submit reviews for pull requests. In order to be assigned an issue or pull request, you can leave a `/assign <your Github ID>` comment on the issue or pull request (PR).
+
+## Development Best Practices
+
+This repository follows the [Integrity Engineering Best Practices](https://redhat.atlassian.net/wiki/spaces/MPEXIENG/pages/254804178/Best+Practices). Key requirements:
+
+### Shell Scripts
+- All scripts must use: `set -euo pipefail; shopt -s inherit_errexit`
+- CI scripts must additionally enable `xtrace` (`set -x`)
+- Declare variables with `typeset` or `declare`
+- Use `camelCase` for shell variables, `UPPER_CASE` for environment variables
+- Never redirect STDERR to `/dev/null`
+- Use `jq` for parsing JSON/YAML, not text-based tools like `grep`/`awk`
+
+### Git Workflow
+- Write clear PR descriptions (becomes merge commit message)
+- Use `git add <specific-files>` — never `git add .` or `git add -A`
+- Rebase often on long-lived PRs
+- Squash commits before merging
+
+### AI Agent Configuration
+- `.AI_INIT.md` is the canonical AI agent instruction file
+- `CLAUDE.md`, `AGENTS.md`, `.continuerules`, `.cursorrules` are symlinks to `.AI_INIT.md`
+- Project-specific AI instructions go in `.AI_README.md`
