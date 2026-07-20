@@ -94,4 +94,4 @@ ValidatePolicySets community
 # Cleanup
 rm -rf schemas
 
-# Done
+true
