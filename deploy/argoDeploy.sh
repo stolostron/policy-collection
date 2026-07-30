@@ -116,6 +116,8 @@ spec:
     path: $GH_PATH
     repoURL: $GH_URL
     targetRevision: $GH_BRANCH
+    directory:
+      recurse: true
   syncPolicy:
     automated: {}
     syncOptions:
