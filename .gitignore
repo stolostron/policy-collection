@@ -3,3 +3,4 @@ deploy/manifests.yaml
 bin
 schemas
 *.sarif
+openshift-tests-ext/acm-policy-tests

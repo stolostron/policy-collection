@@ -1,0 +1,16 @@
+[
+  {
+    "name": "[sig-acm] ACM Policy CRD is installed",
+    "entrypoint": "/bin/bash",
+    "args": ["-c", "${INTEROP_SCRIPTS_DIR:-.}/check-acm-policy-crd.sh"],
+    "tags": ["SMOKE", "acm"],
+    "timeout": "5m"
+  },
+  {
+    "name": "[sig-acm] ACM governance policy framework is installed",
+    "entrypoint": "/bin/bash",
+    "args": ["-c", "${INTEROP_SCRIPTS_DIR:-.}/check-acm-governance.sh"],
+    "tags": ["SMOKE", "acm"],
+    "timeout": "5m"
+  }
+]
