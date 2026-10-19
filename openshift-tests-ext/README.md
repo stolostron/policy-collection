@@ -53,8 +53,10 @@ openshift-tests run-suite acm/all \
 Tests are defined in `test/acm/scenarios.json`. To add a new test:
 
 1. Create a test script in `scripts/`
-2. Add a scenario entry to `scenarios.json`
+2. Add a scenario entry to `scenarios.json` using `${INTEROP_SCRIPTS_DIR}/your-script.sh`
 3. Rebuild the binary with `make build`
+
+Scripts are embedded in the binary. The adapter extracts them to a temp directory at runtime and sets `INTEROP_SCRIPTS_DIR`, so the path is correct when the binary is invoked via `--extension-local-binaries`. Shell scripts use exit `2` for skip conditions (for example missing `KUBECONFIG` or ACM not installed); the adapter maps that to OTE `skipped`.
 
 ## CI Integration
 

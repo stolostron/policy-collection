@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 	"syscall"
 	"time"
@@ -18,9 +19,12 @@ import (
 )
 
 const (
-	// defaultTimeout is the default timeout for Quay tests.
+	// defaultTimeout is the default timeout for ACM Policy tests.
 	defaultTimeoutStr = "5m"
 	defaultTimeout    = 5 * time.Minute
+
+	// skipExitCode is the scenario convention for ResultSkipped (product not installed, missing KUBECONFIG, etc).
+	skipExitCode = 2
 
 	// shutdownGracePeriod is how long we wait after SIGTERM before SIGKILL.
 	shutdownGracePeriod = 10 * time.Second
@@ -34,11 +38,16 @@ const (
 //
 // Usage in a binary:
 //
-//	specs, err := adapter.BuildExtensionTestSpecsFromScenarios(scenarioMetadata, nil)
+//	specs, err := adapter.BuildExtensionTestSpecsFromScenarios(scenarioMetadata, scripts.FS)
 func BuildExtensionTestSpecsFromScenarios(metadata []byte, scriptFS fs.FS) (ext.ExtensionTestSpecs, error) {
 	var scenarios []ScenarioSpec
 	if err := json.Unmarshal(metadata, &scenarios); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal scenario metadata: %w", err)
+	}
+
+	scriptsDir, err := extractScripts(scriptFS)
+	if err != nil {
+		return nil, err
 	}
 
 	specs := make(ext.ExtensionTestSpecs, 0, len(scenarios))
@@ -81,7 +90,7 @@ func BuildExtensionTestSpecsFromScenarios(metadata []byte, scriptFS fs.FS) (ext.
 			if timeout <= 0 {
 				timeout = defaultTimeout
 			}
-			return runScenario(ctx, sc, scriptFS, timeout)
+			return runScenario(ctx, sc, scriptsDir, timeout)
 		}
 		spec.Run = runFn
 		spec.RunParallel = runFn
@@ -148,9 +157,49 @@ func resolveTimeoutStr(timeoutStr string) string {
 	return timeoutStr
 }
 
+// extractScripts copies scriptFS into a temp directory so scenarios can find
+// scripts via INTEROP_SCRIPTS_DIR when the binary is invoked via
+// --extension-local-binaries (CWD is not the source tree).
+func extractScripts(scriptFS fs.FS) (string, error) {
+	if scriptFS == nil {
+		return "", nil
+	}
+
+	dir, err := os.MkdirTemp("", "ote-scripts-*")
+	if err != nil {
+		return "", fmt.Errorf("failed to create scripts temp dir: %w", err)
+	}
+
+	err = fs.WalkDir(scriptFS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if path == "." {
+				return nil
+			}
+			return os.MkdirAll(filepath.Join(dir, path), 0o755)
+		}
+		data, err := fs.ReadFile(scriptFS, path)
+		if err != nil {
+			return err
+		}
+		dest := filepath.Join(dir, path)
+		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+			return err
+		}
+		return os.WriteFile(dest, data, 0o755)
+	})
+	if err != nil {
+		_ = os.RemoveAll(dir)
+		return "", fmt.Errorf("failed to extract scripts: %w", err)
+	}
+	return dir, nil
+}
+
 // runScenario executes a single test scenario by running its entrypoint command with a timeout.
-// It returns an ExtensionTestResult indicating pass, fail, or error with captured output.
-func runScenario(ctx context.Context, sc ScenarioSpec, scriptFS fs.FS, timeout time.Duration) *ext.ExtensionTestResult {
+// It returns an ExtensionTestResult indicating pass, fail, skip, or error with captured output.
+func runScenario(ctx context.Context, sc ScenarioSpec, scriptsDir string, timeout time.Duration) *ext.ExtensionTestResult {
 	result := &ext.ExtensionTestResult{
 		Name: sc.Name,
 	}
@@ -163,7 +212,7 @@ func runScenario(ctx context.Context, sc ScenarioSpec, scriptFS fs.FS, timeout t
 	out := newBoundedBuffer(maxCapturedOutputBytes)
 
 	cmd := exec.Command(argv[0], argv[1:]...)
-	cmd.Env = buildEnv(sc.EnvVars, sc.EnvFrom)
+	cmd.Env = buildEnv(sc.EnvVars, sc.EnvFrom, scriptsDir)
 	cmd.Dir = sc.WorkDir
 	cmd.Stdout = out
 	cmd.Stderr = out
@@ -178,22 +227,27 @@ func runScenario(ctx context.Context, sc ScenarioSpec, scriptFS fs.FS, timeout t
 
 	waitErr := waitWithGracefulCancel(runCtx, cmd, shutdownGracePeriod)
 	result.Output = out.String()
-
-	if waitErr != nil {
-		result.Result = ext.ResultFailed
-		switch {
-		case errors.Is(runCtx.Err(), context.DeadlineExceeded):
-			result.Error = fmt.Sprintf("scenario timed out after %s: %v", timeout, waitErr)
-		case errors.Is(runCtx.Err(), context.Canceled):
-			result.Error = fmt.Sprintf("scenario was cancelled: %v", waitErr)
-		default:
-			result.Error = fmt.Sprintf("scenario exited with error: %v", waitErr)
-		}
-		return result
-	}
-
-	result.Result = ext.ResultPassed
+	result.Result, result.Error = classifyWaitErr(waitErr, runCtx, timeout)
 	return result
+}
+
+// classifyWaitErr maps a scenario process wait error to an OTE result.
+// Exit code 2 is the skip convention used by the shell scripts.
+func classifyWaitErr(waitErr error, runCtx context.Context, timeout time.Duration) (ext.Result, string) {
+	if waitErr == nil {
+		return ext.ResultPassed, ""
+	}
+	switch {
+	case errors.Is(runCtx.Err(), context.DeadlineExceeded):
+		return ext.ResultFailed, fmt.Sprintf("scenario timed out after %s: %v", timeout, waitErr)
+	case errors.Is(runCtx.Err(), context.Canceled):
+		return ext.ResultFailed, fmt.Sprintf("scenario was cancelled: %v", waitErr)
+	}
+	var exitErr *exec.ExitError
+	if errors.As(waitErr, &exitErr) && exitErr.ExitCode() == skipExitCode {
+		return ext.ResultSkipped, fmt.Sprintf("scenario skipped: %v", waitErr)
+	}
+	return ext.ResultFailed, fmt.Sprintf("scenario exited with error: %v", waitErr)
 }
 
 // waitWithGracefulCancel waits for a command to complete or terminates it gracefully on context cancellation.
@@ -265,7 +319,8 @@ func (b *boundedBuffer) String() string {
 }
 
 // buildEnv constructs an environment slice by merging os.Environ, envFrom mappings, and override values.
-func buildEnv(overrides, envFrom map[string]string) []string {
+// scriptsDir is written to INTEROP_SCRIPTS_DIR unless a scenario EnvVar already sets it.
+func buildEnv(overrides, envFrom map[string]string, scriptsDir string) []string {
 	env := make(map[string]string)
 
 	for _, kv := range os.Environ() {
@@ -281,6 +336,10 @@ func buildEnv(overrides, envFrom map[string]string) []string {
 		if v, ok := env[src]; ok && v != "" {
 			env[dest] = v
 		}
+	}
+
+	if scriptsDir != "" {
+		env["INTEROP_SCRIPTS_DIR"] = scriptsDir
 	}
 
 	for k, v := range overrides {

@@ -16,6 +16,7 @@ type ScenarioSpec struct {
 
 	// Args are extra argv passed to Entrypoint.
 	// Example: ["-c", "${INTEROP_SCRIPTS_DIR}/check-acm-policy-crd.sh"]
+	// INTEROP_SCRIPTS_DIR is set by the adapter from the embedded script FS.
 	Args []string `json:"args,omitempty"`
 
 	// WorkDir is an optional chdir before exec.

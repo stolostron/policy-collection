@@ -10,6 +10,7 @@ import (
 	"github.com/openshift-eng/openshift-tests-extension/pkg/cmd"
 	e "github.com/openshift-eng/openshift-tests-extension/pkg/extension"
 	"github.com/stolostron/policy-collection/openshift-tests-ext/pkg/adapter"
+	"github.com/stolostron/policy-collection/openshift-tests-ext/scripts"
 	"github.com/stolostron/policy-collection/openshift-tests-ext/test/acm"
 )
 
@@ -37,7 +38,7 @@ func main() {
 		TestTimeout:      &defaultTimeout,
 	})
 
-	specs, err := adapter.BuildExtensionTestSpecsFromScenarios(acm.ACMPolicyScenarios, nil)
+	specs, err := adapter.BuildExtensionTestSpecsFromScenarios(acm.ACMPolicyScenarios, scripts.FS)
 	if err != nil {
 		panic(fmt.Sprintf("couldn't build extension test specs from ACM Policy scenarios: %+v", err.Error()))
 	}
