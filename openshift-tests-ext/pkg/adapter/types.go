@@ -1,12 +1,8 @@
-// Package adapter provides a generic exec adapter for OTE extensions.
-//
-// The adapter is scenario-agnostic: every scenario is a JSON ScenarioSpec.
+// Package adapter is the local exec runner for the ACM Policy OTE binary
+// in this repository. It is not a shared library.
 package adapter
 
-// ScenarioSpec is the only per-scenario input the adapter understands.
-//
-// The adapter is scenario-agnostic: it must not branch on Name, Tags, or any
-// product type. Adding a scenario is another JSON object, not a new Go file.
+// ScenarioSpec is one ACM Policy OTE scenario loaded from scenarios.json.
 type ScenarioSpec struct {
 	// Name is the full OTE test name, e.g. "[sig-acm] ACM Policy CRD is installed".
 	Name string `json:"name"`
