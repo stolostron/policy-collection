@@ -11,7 +11,7 @@ The `acm-policy-tests` binary implements the OTE v1.1 protocol so ACM Policy che
 ```
 openshift-tests-ext/
 ├── cmd/acm-policy-tests/   # Binary entry point
-├── pkg/adapter/            # Generic test execution adapter
+├── pkg/adapter/            # Local exec runner for this binary (not a shared library)
 ├── test/acm/               # Test scenarios (JSON)
 ├── scripts/                # Test scripts
 ├── go.mod                  # Go module definition
@@ -69,4 +69,6 @@ This binary is built as part of CI composite containers and invoked by step-regi
 
 - JIRA: https://redhat.atlassian.net/browse/INTEROP-9588
 - OpenShift Tests Extension framework: https://github.com/openshift-eng/openshift-tests-extension
-- OTE Protocol spec: https://github.com/openshift-eng/openshift-tests-extension/blob/main/docs/protocol.md
+- OpenShift Tests Extension: https://github.com/openshift-eng/openshift-tests-extension
+- Example integration: https://github.com/openshift-eng/openshift-tests-extension/tree/main/cmd/example-tests
+- Enhancement: https://github.com/openshift/enhancements/pull/1676
