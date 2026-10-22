@@ -21,7 +21,7 @@ func main() {
 	ext := e.NewExtension("acm", "external", "acm-policy-tests")
 
 	ext.AddSuite(e.Suite{
-		Name:             "acm/all",
+		Name:             "acm/policy/all",
 		Description:      "All ACM Policy tests",
 		Qualifiers:       []string{`tags["component"] == "acm"`},
 		ClusterStability: e.ClusterStabilityStable,
@@ -30,7 +30,7 @@ func main() {
 	})
 
 	ext.AddSuite(e.Suite{
-		Name:             "acm/smoke",
+		Name:             "acm/policy/smoke",
 		Description:      "ACM Policy smoke tests",
 		Qualifiers:       []string{`labels.exists(l, l=="SMOKE")`},
 		ClusterStability: e.ClusterStabilityStable,

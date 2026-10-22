@@ -11,7 +11,7 @@ build:
 	go build -o $(BINARY) ./cmd/acm-policy-tests/...
 
 test: build
-	./$(BINARY) run-suite acm/all
+	./$(BINARY) run-suite acm/policy/all
 
 validate: build
 	@echo "==> Validating extension info..."
