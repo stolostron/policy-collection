@@ -29,8 +29,8 @@ make build
 ### Standalone (for development)
 
 ```bash
-./acm-policy-tests run-suite acm/all
-./acm-policy-tests run-suite acm/smoke
+./acm-policy-tests run-suite acm/policy/all
+./acm-policy-tests run-suite acm/policy/smoke
 ./acm-policy-tests list tests
 ./acm-policy-tests info
 ```
@@ -38,15 +38,15 @@ make build
 ### With openshift-tests (production)
 
 ```bash
-openshift-tests run-suite acm/all \
+openshift-tests run-suite acm/policy/all \
   --extension-local-binaries /usr/bin/acm-policy-tests.gz \
   --junit-dir ./junit
 ```
 
 ## Test Suites
 
-- `acm/all` - All ACM Policy tests
-- `acm/smoke` - ACM Policy smoke tests (subset with SMOKE tag)
+- `acm/policy/all` - All ACM Policy tests
+- `acm/policy/smoke` - ACM Policy smoke tests (subset with SMOKE tag)
 
 ## Adding Tests
 
