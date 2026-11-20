@@ -21,6 +21,7 @@ spec:
     name: rhacs-operator-group
     namespace: rhacs-operator
   subscription:
+    # INTEROP-9655: pin via line-replacement to stable (RHACS 5.0.0 per 2026-11-12 confirmed set); do not insert-after-name (duplicates channel in enforce policy)
     channel: stable
     name: rhacs-operator
     namespace: rhacs-operator
